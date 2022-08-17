@@ -5,27 +5,45 @@ import (
     "log"
     "os"
     "time"
+    "bufio"
 
     "go-study/github-issues/github"
+    "go-study/github-issues/parse"
 )
 
 func main () {
     result := new(github.IssuesSearchResult) // contains current issues page
-    var navStr string                        // contains links to previous, next, and last page
+    reader := bufio.NewReader(os.Stdin)
 
-    navStr, result, err := github.SearchIssues(os.Args[1:], result)
-    if err != nil {
-        log.Fatal(err)
-    }
+    // Mainloop
+    for {
+        navStr, result, err := github.SearchIssues(os.Args[1:], result)
+        if err != nil {
+            log.Fatal(err)
+        }
 
-    fmt.Println(navStr)
+        parse.ParseNavigation(navStr)
 
-    fmt.Printf("%d issues:\n", result.TotalCount)
-    for _, item := range result.Items {
-        fmt.Printf(
-            "#%-5d %v %9.9s %.55s\n",
-            item.Number, setTimeTranche(item.CreatedAt), item.User.Login, item.Title,
-        )
+        fmt.Printf("%d issues:\n", result.TotalCount)
+        for _, item := range result.Items {
+            fmt.Printf(
+                "#%-5d %v %9.9s %.55s\n",
+                item.Number, setTimeTranche(item.CreatedAt), item.User.Login, item.Title,
+            )
+        }
+
+        // Processing user input
+        fmt.Printf("\nEnter command:\n:")
+        input, err := reader.ReadString('\n')
+        input = input[:len(input)-1]    // remove delimiter
+
+        if err != nil {
+            log.Fatal(err)
+        }
+
+        if (input == "Q") || (input == "q") {
+            break
+        }
     }
 }
 
