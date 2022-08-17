@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func SearchIssues (terms []string) (string, *IssuesSearchResult, error) {
+func SearchIssues (terms []string, searchRes *IssuesSearchResult) (string, *IssuesSearchResult, error) {
     q := url.QueryEscape(strings.Join(terms, " "))
 
     resp, err := http.Get(IssuesURL + "?q=" + q)
@@ -21,9 +21,7 @@ func SearchIssues (terms []string) (string, *IssuesSearchResult, error) {
         return "", nil, fmt.Errorf("search query failed: %s", resp.Status)
     }
 
-    var result IssuesSearchResult
-
-    if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+    if err := json.NewDecoder(resp.Body).Decode(searchRes); err != nil {
         resp.Body.Close()
         return "", nil, err
     }
@@ -31,5 +29,5 @@ func SearchIssues (terms []string) (string, *IssuesSearchResult, error) {
     meta := resp.Header.Get("link")
 
     resp.Body.Close()
-    return meta, &result, nil
+    return meta, searchRes, nil
 }

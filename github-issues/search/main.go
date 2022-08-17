@@ -10,7 +10,10 @@ import (
 )
 
 func main () {
-    navStr, result, err := github.SearchIssues(os.Args[1:])
+    result := new(github.IssuesSearchResult) // contains current issues page
+    var navStr string                        // contains links to previous, next, and last page
+
+    navStr, result, err := github.SearchIssues(os.Args[1:], result)
     if err != nil {
         log.Fatal(err)
     }
