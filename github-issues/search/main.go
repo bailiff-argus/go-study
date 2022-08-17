@@ -4,6 +4,7 @@ import (
     "fmt"
     "log"
     "os"
+    "os/exec"
     "time"
     "bufio"
 
@@ -17,6 +18,10 @@ func main () {
 
     // Mainloop
     for {
+        cmd := exec.Command("clear")
+        cmd.Stdout = os.Stdout
+        cmd.Run()
+
         navStr, result, err := github.SearchIssues(os.Args[1:], result)
         if err != nil {
             log.Fatal(err)
@@ -33,7 +38,7 @@ func main () {
         }
 
         // Processing user input
-        fmt.Printf("\nEnter command:\n:")
+        fmt.Printf("\nCOMMAND | :")
         input, err := reader.ReadString('\n')
         input = input[:len(input)-1]    // remove delimiter
 
