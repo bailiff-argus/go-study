@@ -16,7 +16,7 @@ func ParseNavigation (raw string) (map[string]string) {
     dirToPage := make(map[string]string)
     s := strings.Split(raw, ",")
     for _, item := range s {
-        page, direction := formNavLinkPair(item)
+        page, direction := formNavQueryPair(item)
         dirToPage[direction] = page
     }
 
@@ -29,18 +29,18 @@ func ParseNavigation (raw string) (map[string]string) {
     return dirToPage
 }
 
-func formNavLinkPair (line string) (string, string) {
+func formNavQueryPair (line string) (string, string) {
     s := strings.Split(strings.TrimSpace(line), ";")
-    link := extractLink(s[0])
-    nav  := extractNav(s[1])
+    query := extractQuery(s[0])
+    nav   := extractNav(s[1])
 
-    return link, nav
+    return query, nav
 }
 
-func extractLink (line string) (string) {
-    link := strings.TrimSpace(line)
-    link = link[1:len(link)-1]
-    return link
+func extractQuery (line string) (string) {
+    query := strings.TrimSpace(line)
+    query = strings.Split(query[1:len(query)-1], "issues")[1]
+    return query
 }
 
 func extractNav (line string) (string) {

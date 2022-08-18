@@ -9,9 +9,15 @@ import (
 )
 
 func SearchIssues (terms []string, searchRes *IssuesSearchResult) (string, *IssuesSearchResult, error) {
-    q := url.QueryEscape(strings.Join(terms, " "))
+    q := "?q=" + url.QueryEscape(strings.Join(terms, " "))
+    return SendRequest(q, searchRes)
+}
 
-    resp, err := http.Get(IssuesURL + "?q=" + q)
+func SendRequest (q string, searchRes *IssuesSearchResult) (string, *IssuesSearchResult, error) {
+    fmt.Println(q)
+    fmt.Println(IssuesURL + q)
+
+    resp, err := http.Get(IssuesURL + q)
     if err != nil {
         return "", nil, err
     }
