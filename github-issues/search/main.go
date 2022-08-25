@@ -6,12 +6,13 @@ import (
 	"os"
 	"strings"
 
-	// "os/exec"
+	"os/exec"
 	"bufio"
 	"time"
 
 	"go-study/github-issues/github"
 	"go-study/github-issues/parse"
+    "go-study/github-issues/nav"
 )
 
 func main () {
@@ -27,9 +28,9 @@ func main () {
 
     // Mainloop
     for {
-        // cmd := exec.Command("clear")
-        // cmd.Stdout = os.Stdout
-        // cmd.Run()
+        cmd := exec.Command("clear")
+        cmd.Stdout = os.Stdout
+        cmd.Run()
 
         navigator := parse.ParseNavigation(navStr)
 
@@ -47,6 +48,8 @@ func main () {
         input = input[:len(input)-1]    // remove delimiter
         input = strings.ToLower(input)
 
+        fmt.Printf("Current input: %s\n", input)
+
         if err != nil {
             log.Fatal(err)
         }
@@ -56,29 +59,9 @@ func main () {
         } else if strings.HasPrefix(input, "o") { // [o]pen
 
         } else { // if not those actions, then navigate
-            var q string
-            var ok bool
-
-            if input == "n" { // [n]ext
-                q, ok = navigator["next"]
-                if !ok {
-                    continue
-                }
-            } else if input == "p" { // [p]revious
-                q, ok = navigator["prev"]
-                if !ok {
-                    continue
-                }
-            } else if input == "f" { // [f]irst
-                q, ok = navigator["first"]
-                if !ok {
-                    continue
-                }
-            } else if input == "l" { // [l]ast
-                q, ok = navigator["last"]
-                if !ok {
-                    continue
-                }
+            q, ok := nav.Navigate(input, navigator)
+            if !ok {
+                continue
             }
 
             navStr, result, err = github.SendRequest(q, result)
