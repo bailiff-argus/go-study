@@ -35,6 +35,7 @@ func main () {
     // Mainloop
     for {
         clear()
+        fmt.Println(os.Getenv("EDITOR"))
 
         parse.DisplayResult(result)
         showInterface()
@@ -47,8 +48,11 @@ func main () {
 
         if input == "q" { // [q]uit
             break
-        } else if input == "c" { // [c]reate
-
+        } else if strings.HasPrefix(input, "c") { // [c]reate
+            err := issue.CreateIssue(input[2:], repo, token)
+            if err != nil {
+                log.Fatal(err)
+            }
         } else if strings.HasPrefix(input, "r") { 
             clear()
 
@@ -63,6 +67,7 @@ func main () {
                 log.Printf("github-issues: %v\n", err)
                 continue
             }
+
             fmt.Println("Press ENTER to go back")
             reader.ReadString('\n')
 
@@ -87,8 +92,8 @@ func main () {
 }
 
 func showInterface() {
-    fmt.Println( "\n[F]irst    [P]revious    [N]ext    [L]ast")
-    fmt.Println(   "[C]reate   [U]pdate #    [R]ead #  [D]elete #")
+    fmt.Println( "\n[F]irst            [P]revious        [N]ext         [L]ast")
+    fmt.Println(   "[C]reate <TITLE>   [U]pdate #        [R]ead #       [D]elete #")
     fmt.Println(   "[Q]uit")
     fmt.Printf("\n\nCOMMAND | :")
 }

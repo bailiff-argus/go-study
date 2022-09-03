@@ -13,7 +13,7 @@ func ReadFlags () (string, string) {
     flag.Parse()
 
     authToken = *authTokenAd
-    repo = "repo:" + *repoAd
+    repo = *repoAd
 
     return authToken, repo
 }

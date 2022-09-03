@@ -13,6 +13,10 @@ Example of in data:
 */
 
 func ParseNavigation (raw string) (map[string]string) {
+    if raw == "" {
+        return nil
+    }
+
     dirToPage := make(map[string]string)
     s := strings.Split(raw, ",")
     for _, item := range s {

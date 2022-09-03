@@ -8,7 +8,7 @@ import (
 )
 
 func SearchIssues (repo string, auth string, searchRes *IssuesSearchResult) (string, *IssuesSearchResult, error) {
-    q := "?q=" + url.QueryEscape(repo)
+    q := "?q=" + url.QueryEscape("repo:" + repo)
     return SendRequest(q, auth, searchRes)
 }
 
@@ -22,6 +22,7 @@ func SendRequest (q string, auth string, searchRes *IssuesSearchResult) (string,
         key := "Authorization"
         value := fmt.Sprintf("Bearer %s", auth)
         req.Header.Set(key, value)
+        req.Header.Add("Accept", "application/vnd.github+json")
     }
 
     resp, err := client.Do(req)
@@ -37,6 +38,10 @@ func SendRequest (q string, auth string, searchRes *IssuesSearchResult) (string,
     if err := json.NewDecoder(resp.Body).Decode(searchRes); err != nil {
         resp.Body.Close()
         return "", nil, err
+    }
+
+    if searchRes.TotalCount == 0 {
+        return "", searchRes, nil
     }
 
     meta := resp.Header.Get("link")
