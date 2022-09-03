@@ -32,32 +32,14 @@ func main () {
         clear()
         navigator := parse.ParseNavigation(navStr)
 
-        fmt.Printf("%d issues:\n", result.TotalCount)
-        for _, item := range result.Items {
-            fmt.Printf(
-                "#%-5d %v %9.9s %.55s\n",
-                item.Number, parse.SetTimeTranche(item.CreatedAt),
-                item.User.Login, item.Title,
-            )
-        }
-
-        fmt.Println()
-        fmt.Println("[F]irst    [P]revious    [N]ext    [L]ast")
-        fmt.Println("[C]reate   [U]pdate #    [R]ead #  [D]elete #")
-        fmt.Println()
+        parse.DisplayResult(result)
+        showInterface()
 
         // Processing user input
-        fmt.Printf("\nCOMMAND | :")
-        input, err := reader.ReadString('\n')
-        input = input[:len(input)-1]    // remove delimiter
-        input = strings.ToLower(input)
-
-        fmt.Printf("Current input: %s\n", input)
-
+        input, err := parse.ReceiveInput(reader)
         if err != nil {
             log.Fatal(err)
         }
-
 
         if input == "q" { // [q]uit
             break
@@ -97,6 +79,12 @@ func main () {
 
         }
     }
+}
+
+func showInterface() {
+    fmt.Println("\n[F]irst    [P]revious    [N]ext    [L]ast")
+    fmt.Println("[C]reate   [U]pdate #    [R]ead #  [D]elete #")
+    fmt.Printf("\n\nCOMMAND | :")
 }
 
 func clear () {
