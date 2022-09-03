@@ -9,7 +9,6 @@ import (
 
 	"bufio"
 	"os/exec"
-	"time"
 
 	"go-study/github-issues/github"
 	"go-study/github-issues/nav"
@@ -30,17 +29,15 @@ func main () {
 
     // Mainloop
     for {
-        cmd := exec.Command("clear")
-        cmd.Stdout = os.Stdout
-        cmd.Run()
-
+        clear()
         navigator := parse.ParseNavigation(navStr)
 
         fmt.Printf("%d issues:\n", result.TotalCount)
         for _, item := range result.Items {
             fmt.Printf(
                 "#%-5d %v %9.9s %.55s\n",
-                item.Number, setTimeTranche(item.CreatedAt), item.User.Login, item.Title,
+                item.Number, parse.SetTimeTranche(item.CreatedAt),
+                item.User.Login, item.Title,
             )
         }
 
@@ -61,18 +58,25 @@ func main () {
             log.Fatal(err)
         }
 
+
         if input == "q" { // [q]uit
             break
         } else if input == "c" { // [c]reate
 
         } else if strings.HasPrefix(input, "r") { 
+            clear()
+
             issueNumber, err := strconv.Atoi(input[2:])
             if err != nil {
-                log.Fatal(err)
+                log.Printf("github-issues: %v\n", err)
+                continue
             }
-            cmd.Run()
-            issue.ViewIssue(issueNumber, result)
 
+            err = issue.ViewIssue(issueNumber, result)
+            if err != nil {
+                log.Printf("github-issues: %v\n", err)
+                continue
+            }
             fmt.Println("Press ENTER to go back")
             reader.ReadString('\n')
 
@@ -95,17 +99,8 @@ func main () {
     }
 }
 
-
-func setTimeTranche (t time.Time) string {
-    now := time.Now()
-    monthAgo := now.AddDate(0, -1, 0)
-    yearAgo := now.AddDate(-1, 0, 0)
-
-    if t.After(monthAgo) {
-        return "Less than a month old"
-    } else if t.After(yearAgo) {
-        return "Less than a year old "
-    } else {
-        return "Older than a year    "
-    }
+func clear () {
+    cmd := exec.Command("clear")
+    cmd.Stdout = os.Stdout
+    cmd.Run()
 }
