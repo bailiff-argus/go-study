@@ -4,15 +4,17 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
-	"os/exec"
 	"bufio"
+	"os/exec"
 	"time"
 
 	"go-study/github-issues/github"
+	"go-study/github-issues/nav"
 	"go-study/github-issues/parse"
-    "go-study/github-issues/nav"
+	"go-study/github-issues/issue"
 )
 
 func main () {
@@ -42,6 +44,11 @@ func main () {
             )
         }
 
+        fmt.Println()
+        fmt.Println("[F]irst    [P]revious    [N]ext    [L]ast")
+        fmt.Println("[C]reate   [U]pdate #    [R]ead #  [D]elete #")
+        fmt.Println()
+
         // Processing user input
         fmt.Printf("\nCOMMAND | :")
         input, err := reader.ReadString('\n')
@@ -56,7 +63,22 @@ func main () {
 
         if input == "q" { // [q]uit
             break
-        } else if strings.HasPrefix(input, "o") { // [o]pen
+        } else if input == "c" { // [c]reate
+
+        } else if strings.HasPrefix(input, "r") { 
+            issueNumber, err := strconv.Atoi(input[2:])
+            if err != nil {
+                log.Fatal(err)
+            }
+            cmd.Run()
+            issue.ViewIssue(issueNumber, result)
+
+            fmt.Println("Press ENTER to go back")
+            reader.ReadString('\n')
+
+        } else if strings.HasPrefix(input, "u") {
+
+        } else if strings.HasPrefix(input, "d") {
 
         } else { // if not those actions, then navigate
             q, ok := nav.Navigate(input, navigator)
