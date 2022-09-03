@@ -5,19 +5,26 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
 )
 
-func SearchIssues (terms []string, searchRes *IssuesSearchResult) (string, *IssuesSearchResult, error) {
-    q := "?q=" + url.QueryEscape(strings.Join(terms, " "))
-    return SendRequest(q, searchRes)
+func SearchIssues (repo string, auth string, searchRes *IssuesSearchResult) (string, *IssuesSearchResult, error) {
+    q := "?q=" + url.QueryEscape(repo)
+    return SendRequest(q, auth, searchRes)
 }
 
-func SendRequest (q string, searchRes *IssuesSearchResult) (string, *IssuesSearchResult, error) {
+func SendRequest (q string, auth string, searchRes *IssuesSearchResult) (string, *IssuesSearchResult, error) {
     fmt.Println(q)
     fmt.Println(IssuesURL + q)
 
-    resp, err := http.Get(IssuesURL + q)
+    client := &http.Client{}
+    req, _ := http.NewRequest("GET", IssuesURL + q, nil)
+    if auth != "" {
+        key := "Authorization"
+        value := fmt.Sprintf("Bearer %s", auth)
+        req.Header.Set(key, value)
+    }
+
+    resp, err := client.Do(req)
     if err != nil {
         return "", nil, err
     }

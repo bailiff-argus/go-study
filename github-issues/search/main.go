@@ -17,20 +17,24 @@ import (
 )
 
 func main () {
+    token, repo := parse.ReadFlags()
+
     result := new(github.IssuesSearchResult) // contains current issues page
     var navStr string
 
-    navStr, result, err := github.SearchIssues(os.Args[1:], result)
+    // for auth need flags
+
+    navStr, result, err := github.SearchIssues(repo, token, result)
     if err != nil {
         log.Fatal(err)
     }
 
+    navigator := parse.ParseNavigation(navStr)
     reader := bufio.NewReader(os.Stdin)
 
     // Mainloop
     for {
         clear()
-        navigator := parse.ParseNavigation(navStr)
 
         parse.DisplayResult(result)
         showInterface()
@@ -72,18 +76,20 @@ func main () {
                 continue
             }
 
-            navStr, result, err = github.SendRequest(q, result)
+            navStr, result, err = github.SendRequest(q, token, result)
             if err != nil {
                 log.Fatal(err)
             }
 
+            navigator = parse.ParseNavigation(navStr)
         }
     }
 }
 
 func showInterface() {
-    fmt.Println("\n[F]irst    [P]revious    [N]ext    [L]ast")
-    fmt.Println("[C]reate   [U]pdate #    [R]ead #  [D]elete #")
+    fmt.Println( "\n[F]irst    [P]revious    [N]ext    [L]ast")
+    fmt.Println(   "[C]reate   [U]pdate #    [R]ead #  [D]elete #")
+    fmt.Println(   "[Q]uit")
     fmt.Printf("\n\nCOMMAND | :")
 }
 
