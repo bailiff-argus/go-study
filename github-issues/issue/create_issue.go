@@ -3,13 +3,13 @@ package issue
 import (
     "fmt"
     "log"
-    // "net/url"
     "net/http"
     "encoding/json"
 
     "bytes"
     "os"
     "os/exec"
+    "io"
     "io/ioutil"
 )
 
@@ -21,31 +21,15 @@ func CreateIssue (title string, repo string, auth string) error {
         return fmt.Errorf("cannot create issue without authorization")
     }
 
-    // var body []byte
-    // titleRQ := url.QueryEscape(title)
-    // textRQ  := url.QueryEscape(getUserInput())
-
-    titleRQ := title
-    textRQ  := getUserInput()
-
-    if textRQ == "" {
-        return fmt.Errorf("empty issue description")
-    }
-
-    json, _ := json.Marshal(
-        map[string]string{
-            "title": titleRQ,
-            "body":  textRQ,
-        },
-    )
 
     client := &http.Client{}
     link := formQueryLink(repo)
-    bodyBuffer := bytes.NewBuffer(json)
+    body, err := formRequestBody(title)
+    if err != nil {
+        return err
+    }
 
-    fmt.Println(bodyBuffer.Bytes())
-
-    req, _ := http.NewRequest("POST", link, bodyBuffer)
+    req, _ := http.NewRequest("POST", link, body)
 
     req.Header.Add("Accept", "application/vnd.github+json")
 
@@ -70,6 +54,26 @@ func CreateIssue (title string, repo string, auth string) error {
 
     return nil
 }
+
+func formRequestBody (title string) (io.Reader, error) {
+    textRQ  := getUserInput()
+
+    if textRQ == "" {
+        return nil, fmt.Errorf("empty issue description")
+    }
+
+    json, _ := json.Marshal(
+        map[string]string{
+            "title": title,
+            "body":  textRQ,
+        },
+    )
+    
+    bodyBuffer := bytes.NewBuffer(json)
+
+    return bodyBuffer, nil
+}
+
 
 func formQueryLink (repo string) string {
     return fmt.Sprintf("%s%s/issues", baseURL, repo)
