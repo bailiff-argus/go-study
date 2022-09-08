@@ -13,6 +13,7 @@ type IssuesSearchResult struct {
 
 type Issue struct {
     Number      int
+    URL         string      `json:"url"`
     HTMLURL     string      `json:"html_url"`
     Title       string
     State       string

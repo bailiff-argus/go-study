@@ -8,8 +8,6 @@ import (
 	"go-study/github-issues/parse"
 
     "time"
-
-    "strings"
 )
 
 func UpdateIssue (issueNo int, issues *github.IssuesSearchResult, auth string) error {
@@ -35,7 +33,7 @@ func UpdateIssue (issueNo int, issues *github.IssuesSearchResult, auth string) e
     }
 
     client := &http.Client{}
-    link := createAPILink(issue.HTMLURL)
+    link := issue.URL
 
     req, _ := http.NewRequest("PATCH", link, body)
     req.Header.Add("Accept", "application/vnd.github+json")
@@ -63,12 +61,4 @@ func UpdateIssue (issueNo int, issues *github.IssuesSearchResult, auth string) e
     }
 
     return nil
-}
-
-func createAPILink (link string) string {
-    base := "https://api.github.com/repos/"
-    parts := strings.SplitAfterN(link, "/", 4)
-
-    res := base + parts[3]
-    return res
 }
