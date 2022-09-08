@@ -17,6 +17,14 @@ import (
 )
 
 func main () {
+    logFile, err := os.Create("log.log")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer logFile.Close()
+
+    log.SetOutput(logFile)
+
     token, repo := parse.ReadFlags()
 
     result := new(github.IssuesSearchResult) // contains current issues page
@@ -24,7 +32,7 @@ func main () {
 
     // for auth need flags
 
-    navStr, result, err := github.SearchIssues(repo, token, result)
+    navStr, result, err = github.SearchIssues(repo, token, result)
     if err != nil {
         log.Fatal(err)
     }
@@ -48,12 +56,15 @@ func main () {
 
         if input == "q" { // [q]uit
             break
+
         } else if strings.HasPrefix(input, "c") { // [c]reate
             err := issue.CreateIssue(input[2:], repo, token)
             if err != nil {
-                log.Fatal(err)
+                log.Printf("github-issues: %v\n", err)
+                continue
             }
-        } else if strings.HasPrefix(input, "r") { 
+
+        } else if strings.HasPrefix(input, "r") { // [r]ead
             clear()
 
             issueNumber, err := strconv.Atoi(input[2:])
@@ -71,11 +82,22 @@ func main () {
             fmt.Println("Press ENTER to go back")
             reader.ReadString('\n')
 
-        } else if strings.HasPrefix(input, "u") {
+        } else if strings.HasPrefix(input, "u") { // [u]pdate
+            issueNumber, err := strconv.Atoi(input[2:])
+            if err != nil {
+                log.Printf("github-issues: %v\n", err)
+                continue
+            }
 
-        } else if strings.HasPrefix(input, "d") {
+            err = issue.UpdateIssue(issueNumber, result, token)
+            if err != nil {
+                log.Printf("github-issues: %v\n", err)
+                continue
+            }
 
-        } else { // if not those actions, then navigate
+        } else if strings.HasPrefix(input, "d") { // [d]elete
+
+        } else { // if not those actions, then attempt to navigate
             q, ok := nav.Navigate(input, navigator)
             if !ok {
                 continue
