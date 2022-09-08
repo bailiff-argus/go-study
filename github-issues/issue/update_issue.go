@@ -6,8 +6,6 @@ import (
 
 	"go-study/github-issues/github"
 	"go-study/github-issues/parse"
-
-    "time"
 )
 
 func UpdateIssue (issueNo int, issues *github.IssuesSearchResult, auth string) error {
@@ -27,7 +25,6 @@ func UpdateIssue (issueNo int, issues *github.IssuesSearchResult, auth string) e
     newBody  := parse.GetInputFromEditor(originalBody)
 
     body, err := parse.FormRequestBody(newTitle, newBody)
-    fmt.Println(body)
     if err != nil {
         return err
     }
@@ -42,17 +39,10 @@ func UpdateIssue (issueNo int, issues *github.IssuesSearchResult, auth string) e
     authValue := fmt.Sprintf("Bearer %s", auth)
     req.Header.Set(authKey, authValue)
 
-    fmt.Println(req)
-    fmt.Println(req.Body)
-
     resp, err := client.Do(req)
     if err != nil {
         return err
     }
-
-    fmt.Println(resp.Status)
-    fmt.Println(resp.Body)
-    time.Sleep(60 * time.Second)
 
     resp.Body.Close()
 

@@ -64,6 +64,11 @@ func main () {
                 continue
             }
 
+            navStr, result, err = github.SearchIssues(repo, token, result)
+            if err != nil {
+                log.Fatal(err)
+            }
+
         } else if strings.HasPrefix(input, "r") { // [r]ead
             clear()
 
@@ -79,9 +84,6 @@ func main () {
                 continue
             }
 
-            fmt.Println("Press ENTER to go back")
-            reader.ReadString('\n')
-
         } else if strings.HasPrefix(input, "u") { // [u]pdate
             issueNumber, err := strconv.Atoi(input[2:])
             if err != nil {
@@ -95,7 +97,10 @@ func main () {
                 continue
             }
 
-        } else if strings.HasPrefix(input, "d") { // [d]elete
+            navStr, result, err = github.SearchIssues(repo, token, result)
+            if err != nil {
+                log.Fatal(err)
+            }
 
         } else { // if not those actions, then attempt to navigate
             q, ok := nav.Navigate(input, navigator)
@@ -115,8 +120,9 @@ func main () {
 
 func showInterface() {
     fmt.Println( "\n[F]irst            [P]revious        [N]ext         [L]ast")
-    fmt.Println(   "[C]reate <TITLE>   [U]pdate #        [R]ead #       [D]elete #")
-    fmt.Println(   "[Q]uit")
+    fmt.Println(   "[C]reate <TITLE>   [U]pdate #        [R]ead #       [Q]uit")
+    fmt.Println( "\nCommands words are strictly 1-letter, for example")
+    fmt.Println(   "c New Request | u 4 | p | q")
     fmt.Printf("\n\nCOMMAND | :")
 }
 

@@ -5,8 +5,11 @@ package issue
 // Authorization: Bearer <TOKEN>
 
 import (
-    "fmt"
-    "go-study/github-issues/github"
+	"fmt"
+	"time"
+
+	"go-study/github-issues/github"
+	"go-study/github-issues/parse"
 )
 
 func findIssue (issueNo int, issues *github.IssuesSearchResult) (*github.Issue, error) {
@@ -25,6 +28,10 @@ func ViewIssue (issueNo int, issues *github.IssuesSearchResult) (error) {
         return err
     }
 
-    fmt.Printf("%s\t%s\n\n%s\n", issue.User.Login, issue.CreatedAt, issue.Body)
-    return nil
+    text := fmt.Sprintf(
+        "%s\t%s\n%s\n\n%s",
+        issue.User.Login, issue.CreatedAt.Format(time.RFC822), issue.Title, issue.Body,
+    )
+    err = parse.ShowInPager(text)
+    return err
 }

@@ -1,19 +1,20 @@
 package parse
 
 import (
-    "fmt"
+	"fmt"
+	"strings"
 
-    "os"
-    "os/exec"
+	"os"
+	"os/exec"
 
-    "io"
-    "io/ioutil"
+	"io"
+	"io/ioutil"
 
-    "log"
+	"log"
 
-    "encoding/json"
+	"encoding/json"
 
-    "bytes"
+	"bytes"
 )
 
 var tempFile string = ".temp"
@@ -62,4 +63,15 @@ func FormRequestBody (title string, text string) (io.Reader, error) {
     bodyBuffer := bytes.NewBuffer(json)
 
     return bodyBuffer, nil
+}
+
+func ShowInPager (text string) error {
+    pager := os.Getenv("PAGER")
+
+    callPager := exec.Command(pager)
+    callPager.Stdin  = strings.NewReader(text)
+    callPager.Stdout = os.Stdout
+
+    err := callPager.Run()
+    return err
 }
