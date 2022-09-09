@@ -4,7 +4,7 @@ import (
     "os"
     "errors"
     "log"
-    // "fmt"
+    "fmt"
 
     "go-study/xkcd/xkcd"
     "go-study/xkcd/ctrl"
@@ -14,7 +14,8 @@ import (
 func main() {
     dbName := "xkcddb.json"
 
-    forceRebuld := ctrl.ReadFlags()
+    forceRebuld, searchTerm := ctrl.ReadFlags()
+    fmt.Println(searchTerm)
 
     if dbNotExistOrEmpty(dbName) || forceRebuld {
         err := xkcd.BuildIndex(dbName)
