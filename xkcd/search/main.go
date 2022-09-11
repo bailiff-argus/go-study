@@ -16,6 +16,7 @@ func main() {
     forceRebuld, noUpdate, searchTerm := ctrl.ReadFlags()
 
     if (dbNotExistOrEmpty(dbName) || forceRebuld) && !noUpdate {
+        fmt.Println("Rebuilding index, please wait...")
         err := xkcd.BuildIndex(dbName)
         if err != nil {
             log.Printf("db rebuild error: %s", err)
