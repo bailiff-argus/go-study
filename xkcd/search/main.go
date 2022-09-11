@@ -1,21 +1,19 @@
 package main
 
 import (
-    "os"
-    "errors"
-    "log"
-    "fmt"
+	"errors"
+	"fmt"
+	"log"
+	"os"
 
-    "go-study/xkcd/xkcd"
-    "go-study/xkcd/ctrl"
+	"go-study/xkcd/ctrl"
+	"go-study/xkcd/xkcd"
+    "go-study/github-issues/parse"
 )
-
 
 func main() {
     dbName := "xkcddb.json"
-
     forceRebuld, searchTerm := ctrl.ReadFlags()
-    fmt.Println(searchTerm)
 
     if dbNotExistOrEmpty(dbName) || forceRebuld {
         err := xkcd.BuildIndex(dbName)
@@ -24,6 +22,11 @@ func main() {
         }
     }
 
+    searchRes, err := SearchInDB(dbName, searchTerm)
+    if err != nil { log.Fatal(err) }
+
+    searchResStr := printSearchResults(searchRes)
+    parse.ShowInPager(searchResStr)
 }
 
 func dbNotExistOrEmpty(filename string) bool {
@@ -37,4 +40,18 @@ func dbNotExistOrEmpty(filename string) bool {
     }
 
     return false
+}
+
+func printSearchResults(db []xkcd.Comic) string {
+    var text string
+    for _, comic := range db {
+        comicStr := fmt.Sprintf(
+            "###NEXT COMIC###\nTitle: %s\nDescr: %s\nURL:   %s\n\n\n\n",
+            comic.Title, comic.Transcript, comic.URL,
+        )
+
+        text += comicStr
+    }
+
+    return text
 }
