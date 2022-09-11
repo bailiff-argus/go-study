@@ -13,9 +13,9 @@ import (
 
 func main() {
     dbName := "xkcddb.json"
-    forceRebuld, searchTerm := ctrl.ReadFlags()
+    forceRebuld, noUpdate, searchTerm := ctrl.ReadFlags()
 
-    if dbNotExistOrEmpty(dbName) || forceRebuld {
+    if (dbNotExistOrEmpty(dbName) || forceRebuld) && !noUpdate {
         err := xkcd.BuildIndex(dbName)
         if err != nil {
             log.Printf("db rebuild error: %s", err)
