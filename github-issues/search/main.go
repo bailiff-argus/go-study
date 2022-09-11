@@ -42,11 +42,13 @@ func main () {
 
     // Mainloop
     for {
-        clear()
-        fmt.Println(os.Getenv("EDITOR"))
+        // clear()
 
-        parse.DisplayResult(result)
+        if err := parse.DisplayResult(result); err != nil {
+            log.Printf("%s\n", err)
+        }
         showInterface()
+        return
 
         // Processing user input
         input, err := parse.ReceiveInput(reader)

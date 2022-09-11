@@ -1,24 +1,33 @@
 package parse
 
 import (
-	"fmt"
+	// "fmt"
+	"bufio"
+	"html/template"
+	"os"
+	"strings"
 	"time"
-    "bufio"
-    "strings"
 
 	"go-study/github-issues/github"
 )
 
-func DisplayResult (result *github.IssuesSearchResult) {
-    fmt.Printf("%d issues:\n", result.TotalCount)
-    for _, item := range result.Items {
-        fmt.Printf(
-            "#%-5d %v %9.9s %.55s\n",
-            item.Number, setTimeTranche(item.CreatedAt),
-            item.User.Login, item.Title,
-        )
-    }
 
+const templ = `{{.TotalCount}} issues:
+{{range .Items}}-----------------------------------
+Number: {{.Number}}
+User:   {{.User.Login}}
+Title:  {{.Title | printf "%.64s"}}
+Age:    {{.CreatedAt | setTimeTranche}}`
+
+
+func DisplayResult (result *github.IssuesSearchResult) error {
+    report, err := template.New("report").
+        Funcs(template.FuncMap{"daysAgo": daysAgo}).
+        Parse(templ)
+    if err != nil { return err }
+
+    err = report.Execute(os.Stdout, result)
+    return err
 }
 
 func ReceiveInput (reader *bufio.Reader) (string, error) {
@@ -34,17 +43,6 @@ func ReceiveInput (reader *bufio.Reader) (string, error) {
     return input, nil
 }
 
-func setTimeTranche (t time.Time) string {
-    now := time.Now()
-    monthAgo := now.AddDate(0, -1, 0)
-    yearAgo := now.AddDate(-1, 0, 0)
-
-    if t.After(monthAgo) {
-        return "Less than a month old"
-    } else if t.After(yearAgo) {
-        return "Less than a year old "
-    } else {
-        return "Older than a year    "
-    }
+func daysAgo(t time.Time) int {
+    return int(time.Since(t).Hours() / 24)
 }
-
