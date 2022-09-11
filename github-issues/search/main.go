@@ -42,19 +42,15 @@ func main () {
 
     // Mainloop
     for {
-        // clear()
+        clear()
 
-        if err := parse.DisplayResult(result); err != nil {
-            log.Printf("%s\n", err)
-        }
+        err := parse.DisplayResult(result)
+        if err != nil { log.Printf("%s\n", err) }
         showInterface()
-        return
 
         // Processing user input
         input, err := parse.ReceiveInput(reader)
-        if err != nil {
-            log.Fatal(err)
-        }
+        if err != nil { log.Fatal(err) }
 
         if input == "q" { // [q]uit
             break

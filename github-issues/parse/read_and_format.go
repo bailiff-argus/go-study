@@ -1,11 +1,10 @@
 package parse
 
 import (
-	// "fmt"
 	"bufio"
-	"html/template"
 	"os"
 	"strings"
+	"text/template"
 	"time"
 
 	"go-study/github-issues/github"
@@ -13,11 +12,12 @@ import (
 
 
 const templ = `{{.TotalCount}} issues:
-{{range .Items}}-----------------------------------
+{{range .Items}}----------------------------------------
 Number: {{.Number}}
 User:   {{.User.Login}}
 Title:  {{.Title | printf "%.64s"}}
-Age:    {{.CreatedAt | setTimeTranche}}`
+Age:    {{.CreatedAt | daysAgo}} days
+{{end}}`
 
 
 func DisplayResult (result *github.IssuesSearchResult) error {
