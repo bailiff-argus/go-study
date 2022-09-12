@@ -19,14 +19,12 @@ Title:  {{.Title | printf "%.64s"}}
 Age:    {{.CreatedAt | daysAgo}} days
 {{end}}`
 
+var report = template.Must(template.New("report").
+        Funcs(template.FuncMap{"daysAgo": daysAgo}).
+        Parse(templ))
 
 func DisplayResult (result *github.IssuesSearchResult) error {
-    report, err := template.New("report").
-        Funcs(template.FuncMap{"daysAgo": daysAgo}).
-        Parse(templ)
-    if err != nil { return err }
-
-    err = report.Execute(os.Stdout, result)
+    err := report.Execute(os.Stdout, result)
     return err
 }
 
