@@ -1,9 +1,10 @@
 package print
 
 import (
-    "fmt"
+	"fmt"
+	"strings"
 
-    "golang.org/x/net/html"
+	"golang.org/x/net/html"
 )
 
 var depth int
@@ -18,9 +19,11 @@ func StartElement(n *html.Node) {
         }
 
         if n.FirstChild == nil {
-            nodeString += "/>\n"
+            // nodeString += "/>\n"
+            nodeString += "/>"
         } else {
-            nodeString += ">\n"
+            // nodeString += ">\n"
+            nodeString += ">"
             depth++
         }
 
@@ -28,9 +31,16 @@ func StartElement(n *html.Node) {
     } else if n.Type == html.CommentNode {
         fmt.Printf("%*s<!--%s-->\n", depth*2, "", n.Data)
     } else if n.Type == html.DoctypeNode {
-        fmt.Printf("%*s<!%s>\n", depth*2, "", n.Data)
+        fmt.Printf("%*s<!DOCTYPE %s>\n", depth*2, "", n.Data)
     } else if n.Type == html.TextNode {
-        fmt.Println(n.Data)
+        text := strings.TrimSpace(n.Data)
+        for _, line := range strings.Split(text, "\n") {
+            if line == "" {
+                continue
+            }
+
+            fmt.Printf("%*s%s\n", depth*2, "", line)
+        }
     }
 
 }
