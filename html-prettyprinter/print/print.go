@@ -19,10 +19,8 @@ func StartElement(n *html.Node) {
         }
 
         if n.FirstChild == nil {
-            // nodeString += "/>\n"
             nodeString += "/>"
         } else {
-            // nodeString += ">\n"
             nodeString += ">"
             depth++
         }
