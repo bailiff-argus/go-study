@@ -1,6 +1,6 @@
 package search
 
-func breadthFirst(f func(item string) []string, worklist []string) {
+func BreadthFirst(f func(item string) []string, worklist []string) {
     seen := make(map[string]bool)
     for len(worklist) > 0 {
         items := worklist
