@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 
 	"go-study/webcrawler/links"
 	"go-study/webcrawler/search"
@@ -14,6 +15,7 @@ import (
 
 func main() {
     search.BreadthFirst(crawl, os.Args[1:])
+    // search.DepthFirst(crawl, os.Args[1:])
 }
 
 var domain string
@@ -31,10 +33,12 @@ func crawl(a string) []string {
 
     if link.Host == domain {
         dir   := "./temp/" + link.Host + link.Path
-        fName := "/temp.html"
+        fName := "temp.html"
+        if !strings.HasSuffix(dir, "/") { fName = "/" + fName }
+
         err := createLocalCopy(a, dir, fName)
         if err != nil { log.Printf("webcrawler: %s", err) }
-    }
+    } 
 
     list, err := links.Extract(a)
     if err != nil { log.Println(err) }
@@ -56,12 +60,8 @@ func writeContentsToFile(text, dir, fileName string) error {
     err := os.MkdirAll(dir, 0766)
     if err != nil { return err }
 
-    log.Print("webcrawler: directory creation success")
-
     file, err := os.Create(dir + fileName)
     if err != nil { return err }
-
-    log.Printf("webcrawler: %s creation success", file.Name())
 
     defer file.Close()
 
