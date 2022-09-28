@@ -44,9 +44,9 @@ func broadcaster() {
             for cli := range clients {
                 cli.receiving <- msg
             }
+
         case cli := <-entering:
             clients[cli] = true
-            cli.receiving <- "Welcome, " + cli.name
             cli.receiving <- "Currently in chat:"
             for client := range clients {
                 if client != cli { cli.receiving <- client.name }
@@ -62,7 +62,6 @@ func broadcaster() {
 func handleConn(conn net.Conn) {
     var cli client
 
-
     ch := make(chan string)
     go clientWriter(conn, ch)
 
@@ -72,14 +71,17 @@ func handleConn(conn net.Conn) {
         conn.Close()
     }()
 
-    cli.name = conn.RemoteAddr().String()
-    cli.receiving = ch
 
-    ch <- "You are " + cli.name
+    cli.receiving = ch
+    cli.receiving <- "Enter your name:"
+    input := bufio.NewScanner(conn)
+    input.Scan()
+    cli.name = input.Text()
+
+    cli.receiving <- "You are " + cli.name
     messages <- cli.name + " has arrived"
     entering <- cli
 
-    input := bufio.NewScanner(conn)
     for input.Scan() {
         timer.Reset(5 * time.Minute)
         messages <- cli.name + ": " + input.Text()
