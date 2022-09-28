@@ -2,9 +2,10 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"net"
-    "fmt"
+	"time"
 )
 
 func main() {
@@ -24,7 +25,10 @@ func main() {
     }
 }
 
-type client chan<- string
+type client struct {
+    receiving chan<- string
+    name      string
+}
 
 var (
     entering = make(chan client)
@@ -38,33 +42,51 @@ func broadcaster() {
         select {
         case msg := <-messages:
             for cli := range clients {
-                cli <- msg
+                cli.receiving <- msg
             }
         case cli := <-entering:
             clients[cli] = true
+            cli.receiving <- "Welcome, " + cli.name
+            cli.receiving <- "Currently in chat:"
+            for client := range clients {
+                if client != cli { cli.receiving <- client.name }
+            }
+
         case cli := <-leaving:
             delete(clients, cli)
-            close(cli)
+            close(cli.receiving)
         }
     }
 }
 
 func handleConn(conn net.Conn) {
+    var cli client
+
+
     ch := make(chan string)
     go clientWriter(conn, ch)
 
-    who := conn.RemoteAddr().String()
-    ch <- "You are " + who
-    messages <- who + " has arrived"
-    entering <- ch
+    timer := time.NewTimer(5 * time.Minute)
+    go func() {
+        <-timer.C
+        conn.Close()
+    }()
+
+    cli.name = conn.RemoteAddr().String()
+    cli.receiving = ch
+
+    ch <- "You are " + cli.name
+    messages <- cli.name + " has arrived"
+    entering <- cli
 
     input := bufio.NewScanner(conn)
     for input.Scan() {
-        messages <- who + ": " + input.Text()
+        timer.Reset(5 * time.Minute)
+        messages <- cli.name + ": " + input.Text()
     }
 
-    leaving <- ch
-    messages <- who + " has left"
+    leaving <- cli
+    messages <- cli.name + " has left"
     conn.Close()
 }
 
