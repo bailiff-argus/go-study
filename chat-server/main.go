@@ -62,7 +62,7 @@ func broadcaster() {
 func handleConn(conn net.Conn) {
     var cli client
 
-    ch := make(chan string)
+    ch := make(chan string, 20)
     go clientWriter(conn, ch)
 
     timer := time.NewTimer(5 * time.Minute)
@@ -70,7 +70,6 @@ func handleConn(conn net.Conn) {
         <-timer.C
         conn.Close()
     }()
-
 
     cli.receiving = ch
     cli.receiving <- "Enter your name:"
